@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+```
+<title>Personal Expense Categorizer</title>
+
+<style>
+
+    * {
+        box-sizing: border-box;
+    }
+
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .container {
+        width: 550px;
+        max-width: 90%;
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+        text-align: center;
+    }
+
+    .icon {
+        font-size: 50px;
+    }
+
+    h1 {
+        margin: 10px 0;
+        color: #333;
+    }
+
+    .subtitle {
+        color: #666;
+        margin-bottom: 30px;
+    }
+
+    input {
+        width: 100%;
+        padding: 15px;
+        margin-bottom: 15px;
+        border: 2px solid #ddd;
+        border-radius: 10px;
+        font-size: 16px;
+        outline: none;
+    }
+
+    input:focus {
+        border-color: #667eea;
+    }
+
+    button {
+        width: 100%;
+        margin-top: 5px;
+        padding: 15px;
+        border: none;
+        border-radius: 10px;
+        background: #667eea;
+        color: white;
+        font-size: 17px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    button:hover {
+        background: #5568d9;
+    }
+
+    .result {
+        margin-top: 30px;
+        padding: 20px;
+        background: #f5f6ff;
+        border-radius: 15px;
+    }
+
+    .result h2 {
+        margin: 0 0 10px;
+        color: #555;
+    }
+
+    .category {
+        font-size: 28px;
+        font-weight: bold;
+        color: #667eea;
+    }
+
+    .amount {
+        margin-top: 10px;
+        font-size: 18px;
+        color: #555;
+    }
+
+    .footer {
+        margin-top: 25px;
+        font-size: 13px;
+        color: #888;
+    }
+.history {
+    margin-top: 30px;
+    text-align: left;
+}
+
+.history h2 {
+    text-align: center;
+    color: #555;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+}
+
+th {
+    background: #667eea;
+    color: white;
+}
+
+td {
+    background: #f9f9f9;
+}
+.summary {
+    margin-top: 30px;
+    text-align: left;
+}
+.chart-container {
+    margin-top: 30px;
+    padding: 20px;
+    background: #f9f9ff;
+    border-radius: 15px;
+}
+
+.chart-container h2 {
+    text-align: center;
+    color: #555;
+    margin-bottom: 20px;
+}
+.summary h2 {
+    text-align: center;
+    color: #555;
+}
+</style>
+```
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+```
+<div class="container">
+
+    <div class="icon">💰</div>
+
+    <h1>Personal Expense Categorizer</h1>
+
+    <p class="subtitle">
+        Enter your expense and let the AI categorize it automatically.
+    </p>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="expense"
+            placeholder="Expense description (e.g. I ordered pizza)"
+            value="{{ expense }}"
+            required
+        >
+
+        <input
+            type="number"
+            name="amount"
+            placeholder="Enter amount (₹)"
+            value="{{ amount }}"
+            min="0"
+            step="0.01"
+            required
+        >
+
+        <button type="submit">
+            Categorize Expense
+        </button>
+
+    </form>
+
+
+    {% if prediction %}
+
+    <div class="result">
+
+        <h2>Predicted Category</h2>
+
+        <div class="category">
+            {{ prediction }}
+        </div>
+
+        <div class="amount">
+            Amount: ₹{{ amount }}
+        </div>
+<div class="amount">
+    Confidence: {{ confidence }}%
+</div>
+
+    </div>
+
+    {% endif %}
+
+<div class="history">
+
+    <h2>Expense History</h2>
+
+    {% if expense_history %}
+
+    <table>
+
+        <tr>
+            <th>Expense</th>
+            <th>Amount</th>
+            <th>Category</th>
+            <th>Confidence</th>
+        </tr>
+
+        {% for item in expense_history %}
+
+        <tr>
+            <td>{{ item.expense }}</td>
+            <td>₹{{ item.amount }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.confidence }}%</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <p>No expenses added yet.</p>
+
+    {% endif %}
+
+</div>
+   <div class="summary">
+
+    <h2>Spending Summary</h2>
+
+    {% if category_totals %}
+
+    <table>
+
+        <tr>
+            <th>Category</th>
+            <th>Total Spending</th>
+        </tr>
+
+        {% for category, total in category_totals.items() %}
+
+        <tr>
+            <td>{{ category }}</td>
+            <td>₹{{ "%.2f"|format(total) }}</td>
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+    {% else %}
+
+    <p>No spending data available yet.</p>
+
+    {% endif %}
+
+</div>
+<div class="chart-container">
+
+    <h2>Spending by Category</h2>
+
+    <canvas id="expenseChart"></canvas>
+
+</div>
+ <div class="footer">
+        Powered by Machine Learning • Class 12 AI Project
+    </div>
+
+</div>
+```
+<script>
+
+    const categoryNames = [
+        {% for category, total in category_totals.items() %}
+            "{{ category }}",
+        {% endfor %}
+    ];
+
+    const categoryAmounts = [
+        {% for category, total in category_totals.items() %}
+            {{ total }},
+        {% endfor %}
+    ];
+
+
+    new Chart(document.getElementById("expenseChart"), {
+
+        type: "bar",
+
+        data: {
+            labels: categoryNames,
+
+            datasets: [{
+                label: "Total Spending (₹)",
+                data: categoryAmounts
+            }]
+        },
+
+        options: {
+            responsive: true,
+
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+
+    });
+
+</script>
+</body>
+
+</html>
+
